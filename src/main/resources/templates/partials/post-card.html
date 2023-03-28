@@ -1,0 +1,14 @@
+<div th:each="post : ${posts}" th:fragment="print-post">
+
+    <div class="card border-light mb-3 p-0 bg-dark text-light" style="width: 18rem;">
+        <div class="card-body">
+            <div class="card-header text-bg-secondary p-0">post#<span th:text="${post.id}"></span></div>
+            <div class=" card-title text-center p-2">
+                <h3 th:text="${post.title}"></h3>
+            </div>
+            <div class="card-text ">
+                <h5>Contents: <span th:text="${post.body}"></span></h5>
+            </div>
+        </div>
+    </div>
+</div>
