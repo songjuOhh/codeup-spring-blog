@@ -11,10 +11,10 @@
 
         <h1>Register</h1>
         <a th:href="@{/about?num=7}">About Page</a>
-        <form th:action="@{/register}" th:method="POST" class="d-flex justify-content-center">
+        <form th:action="@{/register}" th:method="POST" th:object="${user}" class="d-flex justify-content-center">
             <div class="card " style="width: 18rem;">
                 <div class="card-header">
-                    Create Post
+                    Register
                 </div>
                 <div class="card-body">
                     <div class="mb-3">

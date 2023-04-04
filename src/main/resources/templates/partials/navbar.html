@@ -23,22 +23,23 @@
                 </ul>
 
                 <ul class="navbar-nav">
-                    <li th:if="${session.user != null}" class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
 
-                    </li>
-                    <li th:if="${session.user == null}" class="nav-item">
+                    <li  class="nav-item">
                         <a class="nav-link" href="/register">Register</a>
                     </li>
-                    <li th:if="${session.user == null}" class="nav-item">
+                    <li sec:authorize="isAnonymous()" class="nav-item">
                         <a class="nav-link" href="/login">Login</a>
                     </li>
-                    <li th:if="${session.user != null}" class="nav-item">
+                    <li sec:authorize="isAuthenticated()" class="nav-item">
                         <a class="nav-link" href="/profile">Profile</a>
                     </li>
-                    <li th:if="${session.user != null}" class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
+                    <li sec:authorize="isAuthenticated()" class="nav-item">
+                        <!--                        <a  class="nav-link" href="/logout">Logout</a>-->
+                        <form th:action="@{/logout}" th:method="post">
+                            <button class="btn-link btn" >Logout</button>
+                        </form>
                     </li>
+
                 </ul>
             </div>
         </div>
