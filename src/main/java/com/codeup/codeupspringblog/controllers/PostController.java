@@ -6,11 +6,16 @@ import com.codeup.codeupspringblog.models.Users;
 import com.codeup.codeupspringblog.repositories.PostRepository;
 import com.codeup.codeupspringblog.repositories.UserRepository;
 import com.codeup.codeupspringblog.services.EmailService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Controller
@@ -139,7 +144,7 @@ public class PostController {
         return "posts/index";
     }
 
-    @GetMapping("posts/delete/{n}")
+    @GetMapping("/posts/delete/{n}")
     public String deletePost(@PathVariable long n){
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -150,8 +155,9 @@ public class PostController {
             postDao.deleteById(n);
         }
         return "redirect:/posts";
-
     }
+
+
 
 
 
@@ -168,6 +174,48 @@ public class PostController {
         model.addAttribute("post", post);
         return "posts/show";
     }
+
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> likePost(@PathVariable Long postId, Principal principal) {
+        User user = userDao.findByUsername(principal.getName());
+        Post post = postDao.findById(postId).orElseThrow();
+
+        if (post.hasLiked(user)) {
+            post.removeLike(user);
+        } else {
+            post.addLike(user);
+        }
+
+        postDao.save(post);
+        return ResponseEntity.ok().build();
+    }
+
+
+//    public void increment(Long id){
+//        try {
+//            String insertQuery = "UPDATE products SET quantity = quantity+1 WHERE id = ?";
+//            PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
+//            stmt.setLong(1, id);
+//            stmt.executeUpdate();
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error inserting a product", e);
+//        }
+//    }
+//
+//
+//    public void decrement(Long id){
+//        try {
+//            String insertQuery = "UPDATE products SET quantity = quantity-1 WHERE id = ? AND quantity>0";
+//            PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
+//            stmt.setLong(1, id);
+//            stmt.executeUpdate();
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error inserting a product", e);
+//        }
+//    }
 
 
 }

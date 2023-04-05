@@ -2,6 +2,9 @@ package com.codeup.codeupspringblog.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -23,6 +26,9 @@ public class Post {
     private User user;
 
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
+
 
     public Post(String title, String body, User user) {
         this.title = title;
@@ -37,7 +43,7 @@ public class Post {
         this.user = user;
     }
 
-    public Post(){
+    public Post() {
     }
 
     public Long getId() {
@@ -72,12 +78,37 @@ public class Post {
         this.user = user;
     }
 
+    public List<Like> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<Like> likes) {
+        this.likes = likes;
+    }
+
     @Override
     public String toString() {
         return "Post{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", body='" + body + '\'' +
+                ", user=" + user +
+                ", likes=" + likes +
                 '}';
+    }
+
+    public void addLike(User user) {
+        Like like = new Like();
+        like.setPost(this);
+        like.setUser(user);
+        likes.add(like);
+    }
+
+    public void removeLike(User user) {
+        likes.removeIf(like -> like.getUser().equals(user));
+    }
+
+    public boolean hasLiked(User user) {
+        return likes.stream().anyMatch(like -> like.getUser().equals(user));
     }
 }
