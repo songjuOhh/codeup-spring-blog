@@ -6,6 +6,7 @@ import com.codeup.codeupspringblog.models.Users;
 import com.codeup.codeupspringblog.repositories.PostRepository;
 import com.codeup.codeupspringblog.repositories.UserRepository;
 import com.codeup.codeupspringblog.services.EmailService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class PostController {
 
         Post product = new Post("Cat","said Meow", user);
         postDao.save(product);
-        return "redirect:/posts/index";
+        return "redirect:/posts";
     }
 
 //Form Model Binding
@@ -51,11 +52,19 @@ public class PostController {
     @PostMapping("/posts/create")
     public String createPost(@ModelAttribute Post post){
 
-        User user = Users.randomUser(userDao);
-        post.setUser(user);
-        emailService.prepareAndSend(post);
+
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User userData = userDao.findById(currentUser.getId());
+        post.setUser(userData);
+
+//        User user = Users.randomUser(userDao);
+
+        System.out.println("logged in ID: "+currentUser.getId());
+        System.out.println("Post ID: " + post.getId());
         postDao.save(post);
-        return "redirect:/posts/index"; // go to controller
+        emailService.prepareAndSend(post);
+        return "redirect:/posts"; // go to controller
 //        return "<p>Post: "+name+"</p><p>Price: " +price+"</p>";
     }
 
@@ -80,24 +89,29 @@ public class PostController {
     @GetMapping("/posts/{id}/edit")
     public String showEdit(@PathVariable Long id, Model model){
 //        Post post = postDao.findById(id);
-        model.addAttribute("post", postDao.findById(id).get());
-        return "posts/edit";
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post post = postDao.findById(id).get(); // Getting data from the database first
+
+//        System.out.println(user.getId());
+//        System.out.println(post.getUser().getId());
+        if(user.getId() == post.getUser().getId()){
+            model.addAttribute("post", postDao.findById(id).get());
+            return "posts/edit";
+        }else {
+            return "redirect:/posts";
+        }
     }
 
 
     @PostMapping("/posts/{id}/edit")
-    public String editPost( @ModelAttribute Post post, @PathVariable Long id){
+    public String editPost( @ModelAttribute Post post, @PathVariable Long id , Model model){
         Post editedPost = postDao.findById(id).get(); // Getting data from the database first
+
         editedPost.setTitle(post.getTitle());
         editedPost.setBody(post.getBody());
-
-//        User user = userDao.findById(1L);
-//        post.setUser(user);
-
-//        Post post = new Post(id,"Dog","woof, woof, wooooof!!!",user);
         postDao.save(editedPost);
-        return "redirect:/posts/index"; // go to controller
-//        return "<p>Post: "+name+"</p><p>Price: " +price+"</p>";
+        model.addAttribute("posts", editedPost);
+        return "redirect:/posts/{id}"; // go to controller
     }
 
 
@@ -111,17 +125,10 @@ public class PostController {
 //    }
 
 
-    @GetMapping("/posts/index")
+    @GetMapping("/posts")
     public String getPostIndexPage(Model model){
-//        List<Post> posts = new ArrayList<>(Arrays.asList(
-//            new Post(1L, "mouse",800 ),
-//            new Post(2L, "computer",50000 ),
-//            new Post(3L, "house",3000000 )
-//
-//        ));
+
         List<Post> posts = postDao.findAll();
-
-
         model.addAttribute("posts", posts);
 //        List<Post> filteredPostsList = posts
 //                .stream()
@@ -134,15 +141,23 @@ public class PostController {
 
     @GetMapping("posts/delete/{n}")
     public String deletePost(@PathVariable long n){
-        postDao.deleteById(n);
-        return "redirect:/posts/index";
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post post = postDao.findById(n).get();
+//        System.out.println(user.getId());
+//        System.out.println(post.getUser().getId());
+        if(user.getId() == post.getUser().getId()){
+            postDao.deleteById(n);
+        }
+        return "redirect:/posts";
+
     }
 
 
 
 
 
-    @GetMapping("/posts/find/{id}")
+    @GetMapping("/posts/{id}")
     public String findPostById(@PathVariable long id , Model model) {
 //        Optional<Post> optionalPost = postDao.findById(id);
         Post post = postDao.findById(id).get();

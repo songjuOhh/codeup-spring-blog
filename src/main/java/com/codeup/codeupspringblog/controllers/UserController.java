@@ -36,7 +36,7 @@ public class UserController {
         String hashedPw = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
         user.setPassword(hashedPw);
         userDao.save(user);
-        return "redirect:/posts/index";
+        return "redirect:/posts";
     }
 
 //    @PostMapping("/register")
