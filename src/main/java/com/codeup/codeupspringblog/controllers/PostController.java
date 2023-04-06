@@ -1,5 +1,6 @@
 package com.codeup.codeupspringblog.controllers;
 
+import com.codeup.codeupspringblog.models.Like;
 import com.codeup.codeupspringblog.models.Post;
 import com.codeup.codeupspringblog.models.User;
 import com.codeup.codeupspringblog.models.Users;
@@ -28,11 +29,14 @@ public class PostController {
 
     private final EmailService emailService;
 
+    private final PostService postService;
 
-    public PostController(PostRepository postDao, UserRepository userDao, EmailService emailService) {
+
+    public PostController(PostRepository postDao, UserRepository userDao, EmailService emailService, PostService postService) {
         this.postDao = postDao;
         this.userDao = userDao;
         this.emailService = emailService;
+        this.postService = postService;
     }
 
 
@@ -165,7 +169,6 @@ public class PostController {
 
     @GetMapping("/posts/{id}")
     public String findPostById(@PathVariable long id , Model model) {
-//        Optional<Post> optionalPost = postDao.findById(id);
         Post post = postDao.findById(id).get();
         if (post.getId()==null) {
             return "posts/index";
@@ -176,20 +179,27 @@ public class PostController {
     }
 
 
-    @PostMapping("/{postId}/like")
-    public ResponseEntity<?> likePost(@PathVariable Long postId, Principal principal) {
+    @PostMapping("/posts/{id}/like")
+    public String likePost(@PathVariable Long id, Principal principal) {
         User user = userDao.findByUsername(principal.getName());
-        Post post = postDao.findById(postId).orElseThrow();
-
-        if (post.hasLiked(user)) {
-            post.removeLike(user);
-        } else {
-            post.addLike(user);
+        Post post = postDao.findById(id).get();
+        System.out.println(post.hasLiked(user));
+        if(post.hasLiked(user)){
+            postService.decrementLikes(id, user);
+        }else{
+            postService.incrementLikes(id, user);
         }
-
-        postDao.save(post);
-        return ResponseEntity.ok().build();
+        return "redirect:/posts";
     }
+
+//    @PostMapping("/posts/{id}/unlike")
+//    public String unlikePost(@PathVariable Long id, Principal principal) {
+//        User user = userDao.findByUsername(principal.getName());
+//        postService.decrementLikes(id, user);
+//        return "redirect:/posts";
+//    }
+
+
 
 
 //    public void increment(Long id){

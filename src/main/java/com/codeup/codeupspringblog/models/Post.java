@@ -86,6 +86,7 @@ public class Post {
         this.likes = likes;
     }
 
+
     @Override
     public String toString() {
         return "Post{" +
@@ -111,4 +112,10 @@ public class Post {
     public boolean hasLiked(User user) {
         return likes.stream().anyMatch(like -> like.getUser().equals(user));
     }
+
+    public int getLikeCount() {
+        return likes.size();
+    }
+
+
 }

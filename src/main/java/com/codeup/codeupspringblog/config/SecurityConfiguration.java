@@ -42,11 +42,11 @@ public class SecurityConfiguration {
                 /* Logout configuration */
                 .and()
                 .logout()
-                .logoutSuccessUrl("/") // append a query string value
+                .logoutSuccessUrl("/login") // append a query string value
                 /* Pages that can be viewed without having to log in */
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/", "/posts", "/posts/{id}", "/sign-up", "/about", "/register", "/logout", "/posts/find/{id}", "/posts/index","/matrix", "/{postId}/like") // anyone can see home, the posts pages, and sign up
+                .requestMatchers("/", "/posts", "/posts/{id}", "/sign-up", "/about", "/register", "/logout", "/posts/find/{id}", "/posts/index","/matrix", "/posts/{id}/like") // anyone can see home, the posts pages, and sign up
                 .permitAll()
                 /* Pages that require authentication */
                 .and()
@@ -56,7 +56,7 @@ public class SecurityConfiguration {
                         "/posts/{id}/edit", // only authenticated users can edit ads
                         "/posts/edit",
                         "posts/delete/{n}",
-                        "/{postId}/like"
+                        "/posts/{id}/like"
                 )
                 .authenticated();
         return http.build();
