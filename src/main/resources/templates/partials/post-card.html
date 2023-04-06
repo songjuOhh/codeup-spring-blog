@@ -9,7 +9,13 @@
             <div class="card-text ">
                 <h5>Contents: <span th:text="${post.body}" th:href="@{|/posts/${post.id}|}"></span></h5>
                 <h5>Created by: <span th:text="${post.user.username}"></span></h5>
-            </div>
+
+                <form th:action="@{'/posts/' + ${post.id} + '/like'}" method="post">
+                    <button type="submit" class="btn btn-outline-primary"
+                            th:classappend="${post.hasLiked(#authentication.principal.id) ? 'active' : ''}">
+                        <i class="fa fa-thumbs-up"></i><i class="bi bi-hand-thumbs-up"></i> <span th:text="${post.likes.size}"></span>
+                    </button>
+                </form>
 
 
 
@@ -29,3 +35,4 @@
     </div>
 </div>
 
+</div>

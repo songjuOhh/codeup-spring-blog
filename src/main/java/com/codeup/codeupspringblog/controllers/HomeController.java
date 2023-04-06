@@ -5,6 +5,7 @@ import com.codeup.codeupspringblog.models.User;
 import com.codeup.codeupspringblog.repositories.PostRepository;
 import com.codeup.codeupspringblog.repositories.UserRepository;
 import com.codeup.codeupspringblog.services.EmailService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,10 +31,15 @@ public class HomeController {
     @GetMapping("/")
     @ResponseBody
     public String welcome(){
-        Post post = postDao.findById(1L).get();
-        User user = userDao.findById(1);
-        emailService.prepareAndSend(post);
-        System.out.println("Email sent!");
+//        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Long loggedID = loggedUser.getId();
+//
+//        User user = userDao.findById(loggedID).get();
+//
+//
+//        Post post = postDao.findById().get()
+//        emailService.prepareAndSend(post);
+//        System.out.println("Email sent!");
         return "This is the landing page!";
     }
 }

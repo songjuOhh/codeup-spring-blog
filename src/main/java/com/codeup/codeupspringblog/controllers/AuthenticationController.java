@@ -21,17 +21,17 @@ public class AuthenticationController {
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println(user.getId());
-
-        if(user.getId() != 0){
-            List<Post> posts = postDao.findAll();
-            model.addAttribute("posts",posts);
-            return "posts/index";
-        }else{
-            return "users/login";
-        }
-//        return "users/login";
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        System.out.println(user.getId());
+//
+//        if(user.getId() != 0){
+//            List<Post> posts = postDao.findAll();
+//            model.addAttribute("posts",posts);
+//            return "posts/index";
+//        }else{
+//            return "users/login";
+//        }
+        return "users/login";
 
     }
 }

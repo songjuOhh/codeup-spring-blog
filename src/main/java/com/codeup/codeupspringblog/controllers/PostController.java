@@ -1,16 +1,22 @@
 package com.codeup.codeupspringblog.controllers;
 
+import com.codeup.codeupspringblog.models.Like;
 import com.codeup.codeupspringblog.models.Post;
 import com.codeup.codeupspringblog.models.User;
 import com.codeup.codeupspringblog.models.Users;
 import com.codeup.codeupspringblog.repositories.PostRepository;
 import com.codeup.codeupspringblog.repositories.UserRepository;
 import com.codeup.codeupspringblog.services.EmailService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Controller
@@ -23,11 +29,14 @@ public class PostController {
 
     private final EmailService emailService;
 
+    private final PostService postService;
 
-    public PostController(PostRepository postDao, UserRepository userDao, EmailService emailService) {
+
+    public PostController(PostRepository postDao, UserRepository userDao, EmailService emailService, PostService postService) {
         this.postDao = postDao;
         this.userDao = userDao;
         this.emailService = emailService;
+        this.postService = postService;
     }
 
 
@@ -139,7 +148,7 @@ public class PostController {
         return "posts/index";
     }
 
-    @GetMapping("posts/delete/{n}")
+    @GetMapping("/posts/delete/{n}")
     public String deletePost(@PathVariable long n){
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -150,8 +159,9 @@ public class PostController {
             postDao.deleteById(n);
         }
         return "redirect:/posts";
-
     }
+
+
 
 
 
@@ -159,7 +169,6 @@ public class PostController {
 
     @GetMapping("/posts/{id}")
     public String findPostById(@PathVariable long id , Model model) {
-//        Optional<Post> optionalPost = postDao.findById(id);
         Post post = postDao.findById(id).get();
         if (post.getId()==null) {
             return "posts/index";
@@ -168,6 +177,55 @@ public class PostController {
         model.addAttribute("post", post);
         return "posts/show";
     }
+
+
+    @PostMapping("/posts/{id}/like")
+    public String likePost(@PathVariable Long id, Principal principal) {
+        User user = userDao.findByUsername(principal.getName());
+        Post post = postDao.findById(id).get();
+        System.out.println(post.hasLiked(user));
+        if(post.hasLiked(user)){
+            postService.decrementLikes(id, user);
+        }else{
+            postService.incrementLikes(id, user);
+        }
+        return "redirect:/posts";
+    }
+
+//    @PostMapping("/posts/{id}/unlike")
+//    public String unlikePost(@PathVariable Long id, Principal principal) {
+//        User user = userDao.findByUsername(principal.getName());
+//        postService.decrementLikes(id, user);
+//        return "redirect:/posts";
+//    }
+
+
+
+
+//    public void increment(Long id){
+//        try {
+//            String insertQuery = "UPDATE products SET quantity = quantity+1 WHERE id = ?";
+//            PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
+//            stmt.setLong(1, id);
+//            stmt.executeUpdate();
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error inserting a product", e);
+//        }
+//    }
+//
+//
+//    public void decrement(Long id){
+//        try {
+//            String insertQuery = "UPDATE products SET quantity = quantity-1 WHERE id = ? AND quantity>0";
+//            PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
+//            stmt.setLong(1, id);
+//            stmt.executeUpdate();
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error inserting a product", e);
+//        }
+//    }
 
 
 }
